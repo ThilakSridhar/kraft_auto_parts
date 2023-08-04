@@ -1,53 +1,89 @@
 import { Prisma, PrismaClient, Customer } from "@prisma/client";
-import { Request, Response } from "express";
+import {NextFunction, Request, Response } from "express";
+
+import CustomError from "../utils/GlobalErrorHandler";
+import { nextTick } from "process";
 
 type CustomerCreateInput = Prisma.CustomerCreateInput;
 type CustomerUpdateInput = Prisma.CustomerUpdateInput;
 
 const prisma = new PrismaClient();
 
-export async function getAllCustomers(req: Request, res: Response) {
-  const customers = await prisma.customer.findMany();
-  return res.send(customers);
+export async function getAllCustomers(req: Request, res: Response, next: NextFunction) 
+{
+  try {
+    const customers = await prisma.customer.findMany();
+
+    if (!customers) throw new CustomError("Customer not found", 424);
+
+    return res.send(customers);
+
+  } catch (error) {
+    next(error);
+  }
+ 
 }
 
-export async function getCustomerByCode(req: Request, res: Response) {
-  const customerCode = req.params.customerCode;
+export async function getCustomerByCode(req: Request, res: Response, next: NextFunction) {
+  try {
+    const customerCode = Number(req.params.customerCode);
 
-  console.log(customerCode, "customerCode");
+    const customer = await prisma.customer.findUnique({
+      where: { customerCode },
+    });
 
-  const customer = await prisma.customer.findUnique({
-    where: { customerCode: Number(customerCode) },
-  });
+    if (!customer) throw new CustomError("Customer not found", 404);
 
-  return res.json(customer);
+    return res.status(200).json(customer);
+  } catch (error) {
+    next(error);
+  }
 }
 
-export async function createCustomer(req: Request, res: Response) {
-  const customerData: CustomerCreateInput = req.body.customerData;
-console.log (req.body)
-  const customer = await prisma.customer.create({
-    data: customerData,
-  });
-  return res.json(customer);
+export async function createCustomer(req: Request, res: Response , next: NextFunction) {
+  try {
+    const customerData: CustomerCreateInput = req.body.customerData;
+
+    const customer = await prisma.customer.create({
+      data: customerData,
+    });
+    if (!customer) throw new CustomError("Customer cannot be created", 424);
+
+    return res.json(customer);
+  } catch (error) {
+    next(error);
+  }
+ 
 }
 
-export async function updateCustomer(req: Request, res: Response) {
-  // customerCode: number, data: CustomerUpdateInput
-  const customerCode= req.params.customerCode;
+export async function updateCustomer(req: Request, res: Response , next: NextFunction) {
+  try {
+    const customerCode= Number (req.params.customerCode);
   const data: CustomerUpdateInput = req.body;
     const customer = await prisma.customer.update({
-    where: { customerCode: Number (customerCode) },
+    where: { customerCode },
     data,
   });
+  if (!customer) throw new CustomError("Customer cannot be updated", 434);
+
   return res.json(customer);
+  } catch (error) {
+   next(error); 
+  }
+  
 }
 
-export async function deleteCustomer(req: Request, res: Response) {
-  // customerCode: number
-  const customerCode = req.params.customerCode;
+export async function deleteCustomer(req: Request, res: Response , next: NextFunction) {
+  try {
+    const customerCode = Number(req.params.customerCode);
   const customer = await prisma.customer.delete({
-    where: { customerCode: Number(customerCode) },
+    where: { customerCode },
   });
+  if (!customer) throw new CustomError("Customer not create", 444);
+
   return res.json(customer) ;
+  } catch (error) {
+    next(error);
+  }
+  
 }

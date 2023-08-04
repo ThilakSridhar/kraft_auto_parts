@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 
 export async function getAllgsts(req: Request, res: Response) {
   const gsts = await prisma.gst.findMany();
+  console.log("res.json(gsts)");
   return res.json(gsts);
 }
 

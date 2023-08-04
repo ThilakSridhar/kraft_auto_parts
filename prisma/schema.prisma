@@ -36,29 +36,3 @@ model gst {
   panNumber String   @unique
 }
 
-// schema.prisma
-
-model SalesOrder {
-  id            Int       @id @default(autoincrement())
-  despatchMode  String    // Mode of despatch
-  paymentTerms  String    // Payment terms
-  priceBasis    String    // Price basis
-  currency      String    // Currency
-  billSequence  String    // Bill Sequence
-  salesTarget   Float?    // Sales Target (nullable as it may not always be available)
-  notes         String?   // Notes (nullable as it may not always be available)
-
-  bankDetails   BankDetails[]
-}
-
-model BankDetails {
-  id           Int       @id @default(autoincrement())
-  bankName     String
-  accountNo    String
-  branchName   String
-  ifscCode     String
-  isPrimary    Boolean   @default(false)
-
-  salesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id])
-  salesOrderId Int
-}
