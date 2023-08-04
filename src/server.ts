@@ -22,17 +22,20 @@ app.get("/error", (req, res, next) => {
   }
 });
 
-app.all("*", (req, res, next) => {
-  const error = new CustomError(`Can't find ${req.originalUrl} on the server!`, 404);
-  next(error);
-});
 
- app.use(globalErrorHandler);
 
 
 app.use("/api", customerRoute);
 app.use("/api", gstRoute);
 
+
+app.all("*", (req, res, next) => {
+  const error = new CustomError(`Can't find ${req.originalUrl} on the server!`, 404);
+  next(error);
+});
+
+app.use(globalErrorHandler);
+ 
 const server = app.listen(port, () => {
   try {
     console.log(`Server is running on port ${port}`);

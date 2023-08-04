@@ -1,8 +1,8 @@
-import { Prisma, PrismaClient, Customer } from "@prisma/client";
+import { Prisma, PrismaClient,  } from "@prisma/client";
 import {NextFunction, Request, Response } from "express";
 
 import CustomError from "../utils/GlobalErrorHandler";
-import { nextTick } from "process";
+
 
 type CustomerCreateInput = Prisma.CustomerCreateInput;
 type CustomerUpdateInput = Prisma.CustomerUpdateInput;
